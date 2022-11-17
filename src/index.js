@@ -4,7 +4,34 @@ import words from './dictionary.js'
 window.onload = ()=> {
     const randomWord = words[Math.floor(Math.random() * words.length)];
     const slotsMainContainer = document.querySelector('#words')
-    console.log(randomWord)
+    const letterKeys = document.querySelectorAll('.key')
+    const deleteKey = document.querySelector('#backspace')
+    // const enterKey = document.querySelector('#enter')
+
+    function addClass(event) {
+        const slot = event.target
+        const slotSelected = slot.parentNode.querySelector('.selected')
+
+        if(slotSelected) slotSelected.classList.remove('selected')
+        slot.classList.add('selected')
+    }
+
+    
+    function addContainerSlots(newContainer) {
+        const prevContainer = slotsMainContainer.lastChild
+
+        slotsMainContainer.appendChild(newContainer)
+        
+        newContainer.childNodes.forEach(slot => {
+            slot.addEventListener('click', addClass)
+        });
+
+        if(prevContainer) {
+            prevContainer.childNodes.forEach(slot => {
+                slot.removeEventListener('click', addClass)
+            });
+        }
+    }
 
     function createContainerSlots() {
         const newContainer = document.createElement("div");
@@ -19,41 +46,47 @@ window.onload = ()=> {
         return newContainer
     }
 
-    function addClass(event){
-        const slot = event.target
-        const arraySlots = [...slot.parentNode.childNodes]
-        const slotSelected = arraySlots.find(element => element.classList.contains('selected'))
-
-        if(slotSelected) slotSelected.classList.remove('selected')
-        slot.classList.add('selected')
+    function changeSelect(actualSlots){
+        const slots = [...actualSlots]
+        const emptySlot = slots.find(slotSelected => slotSelected.textContent === '')
+        if(emptySlot) emptySlot.classList.add('selected')
     }
 
-    function listenSelection(actualSlots, prevSlots) {
+    function insertLetter(event) {
+        const atualContainer = slotsMainContainer.lastChild
+        const slotSelected = atualContainer.querySelector('.selected')
 
-        actualSlots.forEach(slot => {
-            slot.addEventListener('click', addClass)
-        });
-
-        if(prevSlots) {
-            prevSlots.forEach(slot => {
-                slot.removeEventListener('click', addClass)
-            });
+        if(slotSelected){
+            slotSelected.textContent = event.target.getAttribute('data-key')
+            slotSelected.classList.remove('selected')
+            changeSelect(atualContainer.childNodes)
         }
-
     }
 
-    function addContainerSlots(newContainer) {
-        slotsMainContainer.appendChild(newContainer)
-        const prevContainer = newContainer.previousSibling
-        let prevSlots = null
+    function removeLetter(){
+        const atualContainer = slotsMainContainer.lastChild
+        const slotSelected = atualContainer.querySelector('.selected')
 
-        if(prevContainer.tagName === 'DIV') {
-            prevSlots =  prevContainer.classList.contains('word') ? prevContainer.childNodes : null
+        if(slotSelected) {
+            if(slotSelected.textContent !== '') {
+                slotSelected.textContent = ''
+            } else if(atualContainer.firstChild !== slotSelected) {
+                slotSelected.previousSibling.textContent = ''
+            }
+            slotSelected.classList.remove('selected')
+        } else {
+            atualContainer.lastChild.textContent = ''
         }
+        changeSelect(atualContainer.childNodes)
+    }
 
-        listenSelection(newContainer.childNodes, prevSlots)
+    function listenerKeyboard() {
+        letterKeys.forEach(key => key.onclick = insertLetter)
+        deleteKey.onclick = removeLetter
     }
 
     addContainerSlots(createContainerSlots())
+    listenerKeyboard()
+    console.log(randomWord)
 
 }
