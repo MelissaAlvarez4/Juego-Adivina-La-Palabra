@@ -15,10 +15,12 @@ window.onload = ()=> {
         return arraySlots.find(slotSelected => slotSelected.textContent === '')
     }
 
+
     function changeSelect(actualSlots) {
         const emptySlot = slotContent(actualSlots)
         if(emptySlot) emptySlot.classList.add('selected')
     }
+
 
     function insertLetter(event) {
         const atualContainer = slotsMainContainer.lastChild
@@ -30,6 +32,7 @@ window.onload = ()=> {
             changeSelect(atualContainer.childNodes)
         }
     }
+
 
     function removeLetter() {
         const atualContainer = slotsMainContainer.lastChild
@@ -48,21 +51,53 @@ window.onload = ()=> {
         changeSelect(atualContainer.childNodes)
     }
 
+
     function findWord(slots) {
         let newWord = [...slots].map(slot => slot.textContent.toLowerCase())
         newWord = newWord.join('')
         return words.find(word => word === newWord)
     }
 
+    function setPositionColors(word, slots) {
+
+        [...word].forEach((letter, index, array) => {
+
+            if(array[index] === randomWord[index]) {
+                [...slots][index].style.backgroundColor = 'green'
+
+            } else if (randomWord.includes(letter)) {
+                [...slots][index].style.backgroundColor = 'yellow'
+
+            } else {
+                [...slots][index].style.backgroundColor = 'grey'
+
+            }
+        })
+    }
+
+
     function check() {
         const slots = slotsMainContainer.lastChild.childNodes
         
         if(slotContent(slots)) {
-            alert('No hay suficientes letras')
-        } else if(findWord(slots)) {
-            console.log('siiiiuuu')
+            alert('No hay suficientes letras.')
+
+        } else {
+            const word = findWord(slots)
+            if(!word) {
+                alert('La palabra no está lista.')
+
+            } else if(word === randomWord) {
+                    alert('Has ganado!')
+                    slots.forEach(slot => slot.style.backgroundColor = 'green')
+
+            } else {
+                setPositionColors(word, slots)
+                addContainerSlots(slotsMainContainer)
+            }
         }
     }
+
 
     function listenerKeyboard() {
         letterKeys.forEach(key => key.onclick = insertLetter)
