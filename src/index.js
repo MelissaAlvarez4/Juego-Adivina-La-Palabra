@@ -1,54 +1,22 @@
 import './styles.css'
 import words from './dictionary.js'
+import addContainerSlots from './containerSlots.js'
 
 window.onload = ()=> {
     const randomWord = words[Math.floor(Math.random() * words.length)];
     const slotsMainContainer = document.querySelector('#words')
     const letterKeys = document.querySelectorAll('.key')
     const deleteKey = document.querySelector('#backspace')
-    // const enterKey = document.querySelector('#enter')
+    const enterKey = document.querySelector('#enter')
 
-    function addClass(event) {
-        const slot = event.target
-        const slotSelected = slot.parentNode.querySelector('.selected')
 
-        if(slotSelected) slotSelected.classList.remove('selected')
-        slot.classList.add('selected')
+    function slotContent(slots) {
+        const arraySlots = [...slots]
+        return arraySlots.find(slotSelected => slotSelected.textContent === '')
     }
 
-    
-    function addContainerSlots(newContainer) {
-        const prevContainer = slotsMainContainer.lastChild
-
-        slotsMainContainer.appendChild(newContainer)
-        
-        newContainer.childNodes.forEach(slot => {
-            slot.addEventListener('click', addClass)
-        });
-
-        if(prevContainer) {
-            prevContainer.childNodes.forEach(slot => {
-                slot.removeEventListener('click', addClass)
-            });
-        }
-    }
-
-    function createContainerSlots() {
-        const newContainer = document.createElement("div");
-        newContainer.className = 'word'
-
-        for(let i=0; i < 5; i++) {
-            let newSlot = document.createElement("div");
-            newSlot.className = 'slot'
-            newContainer.appendChild(newSlot)
-        }
-        
-        return newContainer
-    }
-
-    function changeSelect(actualSlots){
-        const slots = [...actualSlots]
-        const emptySlot = slots.find(slotSelected => slotSelected.textContent === '')
+    function changeSelect(actualSlots) {
+        const emptySlot = slotContent(actualSlots)
         if(emptySlot) emptySlot.classList.add('selected')
     }
 
@@ -63,7 +31,7 @@ window.onload = ()=> {
         }
     }
 
-    function removeLetter(){
+    function removeLetter() {
         const atualContainer = slotsMainContainer.lastChild
         const slotSelected = atualContainer.querySelector('.selected')
 
@@ -80,12 +48,29 @@ window.onload = ()=> {
         changeSelect(atualContainer.childNodes)
     }
 
+    function findWord(slots) {
+        let newWord = [...slots].map(slot => slot.textContent.toLowerCase())
+        newWord = newWord.join('')
+        return words.find(word => word === newWord)
+    }
+
+    function check() {
+        const slots = slotsMainContainer.lastChild.childNodes
+        
+        if(slotContent(slots)) {
+            alert('No hay suficientes letras')
+        } else if(findWord(slots)) {
+            console.log('siiiiuuu')
+        }
+    }
+
     function listenerKeyboard() {
         letterKeys.forEach(key => key.onclick = insertLetter)
         deleteKey.onclick = removeLetter
+        enterKey.onclick = check
     }
 
-    addContainerSlots(createContainerSlots())
+    addContainerSlots(slotsMainContainer)
     listenerKeyboard()
     console.log(randomWord)
 
