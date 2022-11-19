@@ -1,4 +1,6 @@
 
+const slotsMainContainer = document.querySelector('#words')
+
     function createContainerSlots() {
         const newContainer = document.createElement("div");
         newContainer.className = 'word'
@@ -21,7 +23,7 @@
     }
 
     
-    function addContainerSlots(slotsMainContainer) {
+    function addContainerSlots() {
         const newContainer = createContainerSlots() 
         const prevContainer = slotsMainContainer.lastChild
 

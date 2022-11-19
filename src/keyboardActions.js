@@ -1,30 +1,47 @@
-function changeSelect(actualSlots){
-    const slots = [...actualSlots]
-    const emptySlot = slots.find(slotSelected => slotSelected.textContent === '')
+import words from './dictionary.js'
+import addContainerSlots from './containerSlots.js'
+
+const randomWord = words[Math.floor(Math.random() * words.length)];
+const slotsMainContainer = document.querySelector('#words')
+const letterKeys = document.querySelectorAll('.key')
+const deleteKey = document.querySelector('#backspace')
+const enterKey = document.querySelector('#enter')
+
+
+function slotContent(slots) {
+    const arraySlots = [...slots]
+    return arraySlots.find(slotSelected => slotSelected.textContent === '')
+}
+
+
+function changeSelect(actualSlots) {
+    const emptySlot = slotContent(actualSlots)
     if(emptySlot) emptySlot.classList.add('selected')
 }
 
-function insertLetter(event) {
-    console.log(event.target.parentNode)
-    const atualContainer = event.target.parentNode
-    const slotSelected = atualContainer.querySelector('.selected')
 
+function insertLetter(event) {
+    const atualContainer = slotsMainContainer.lastChild
+    const slotSelected = atualContainer.querySelector('.selected')
     if(slotSelected){
-        slotSelected.textContent = event.target.getAttribute('data-key')
+        slotSelected.textContent = event.target.getAttribute('data-key')            
         slotSelected.classList.remove('selected')
         changeSelect(atualContainer.childNodes)
     }
 }
 
-function removeLetter(event){
-    const atualContainer = event.target.parentNode
+
+function removeLetter() {
+    const atualContainer = slotsMainContainer.lastChild
     const slotSelected = atualContainer.querySelector('.selected')
 
     if(slotSelected) {
         if(slotSelected.textContent !== '') {
             slotSelected.textContent = ''
-        } else if(atualContainer.firstChild !== slotSelected) {
+
+        } else if(atualContainer.firstChild !== slotSelected && slotSelected.previousSibling.textContent !== '') {
             slotSelected.previousSibling.textContent = ''
+
         }
         slotSelected.classList.remove('selected')
     } else {
@@ -33,7 +50,57 @@ function removeLetter(event){
     changeSelect(atualContainer.childNodes)
 }
 
-export {
-    insertLetter,
-    removeLetter
+
+function setPositionColor(word, slots) {
+
+    [...word].forEach((letter, index, array) => {
+
+        if(array[index] === randomWord[index]) {
+            [...slots][index].style.backgroundColor = 'green'
+
+        } else if (randomWord.includes(letter)) {
+            [...slots][index].style.backgroundColor = 'yellow'
+
+        } else {
+            [...slots][index].style.backgroundColor = 'grey'
+
+        }
+    })
 }
+
+function findWord(slots) {
+    const newWord = [...slots].map(slot => slot.textContent.toLowerCase()).join('')
+    return words.find(word => word === newWord)
+}
+
+function check() {
+    const slots = slotsMainContainer.lastChild.childNodes
+    
+    if(slotContent(slots)) {
+        alert('No hay suficientes letras.')
+
+    } else {
+        const word = findWord(slots)
+
+        if(!word) {
+            alert('La palabra no está lista.')
+
+        } else if(word === randomWord) {
+                alert('Has ganado!')
+                slots.forEach(slot => slot.style.backgroundColor = 'green')
+
+        } else {
+            setPositionColor(word, slots)
+            addContainerSlots()
+        }
+    }
+}
+
+
+function listenerKeyboard() {
+    letterKeys.forEach(key => key.onclick = insertLetter)
+    deleteKey.onclick = removeLetter
+    enterKey.onclick = check
+}
+
+export default listenerKeyboard
